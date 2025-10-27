@@ -7,12 +7,16 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, new ExpressAdapter());
   app.useGlobalFilters(new HttpExceptionFilter());
 
-
-
   // Enable CORS
   app.enableCors({
     allowedHeaders: '*',
-    origin: '*',
+    origin: [
+      'https://nyahngunyahfecms-production.up.railway.app', // FE CMS prod
+      'https://nyahngunyah-production.up.railway.app/',
+      'http://localhost:5000', // FE CMS lokal
+      'http://localhost:4000', // FE CMS lokal
+
+    ],
     credentials: true,
   });
 
