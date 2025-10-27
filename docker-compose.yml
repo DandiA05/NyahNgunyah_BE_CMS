@@ -1,0 +1,15 @@
+version: '3.5'
+
+services:
+  backend_dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: backend_dashboard
+    ports:
+      - '3000:3000'
+    networks:
+      docker-dashboard-net:
+
+networks:
+  docker-dashboard-net:

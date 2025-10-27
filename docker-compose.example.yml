@@ -1,0 +1,40 @@
+version: '3.5'
+
+services:
+  database_dashboard:
+    container_name: database-dashboard
+    image: mysql:8-oracle
+    restart: always
+    environment:
+      MYSQL_DATABASE: dashboard_it
+      MYSQL_USER: smf
+      MYSQL_PASSWORD: 5mfUser@2023
+      MYSQL_ROOT_PASSWORD: 5mfUser@2023
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', '127.0.0.1', '--silent']
+      interval: 3s
+      retries: 5
+      start_period: 30s
+    networks:
+      docker-dashboard-net:
+    ports:
+      - 3307:3306
+    volumes:
+      - .mysql/data/db:/var/lib/mysql
+      - .config/my.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf # config mysql server
+    command: mysqld --sql_mode="" --character-set-server=utf8 --collation-server=utf8_slovenian_ci --init-connect='SET NAMES UTF8;' --innodb-flush-log-at-trx-commit=0
+
+  backend_dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: backend_dashboard
+    ports:
+      - '3000:3000'
+    depends_on:
+      - database_dashboard
+    networks:
+      docker-dashboard-net:
+
+networks:
+  docker-dashboard-net:
