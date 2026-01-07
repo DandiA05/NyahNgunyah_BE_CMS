@@ -3,39 +3,35 @@ services:
   - type: web
     name: nyahngunyah-be
     runtime: node
-    plan: free # or yours
+    plan: free
     buildCommand: npm install && npm run build
     startCommand: npm run start:prod
     envVars:
       - key: NODE_VERSION
         value: 18.0.0
       - key: DATABASE_HOST
-        fromService:
-          type: service
-          name: mysql-db
+        fromDatabase:
+          name: nyahngunyah-db
           property: host
       - key: DATABASE_PORT
-        value: 3306
+        fromDatabase:
+          name: nyahngunyah-db
+          property: port
       - key: DATABASE_USER
-        value: root
+        fromDatabase:
+          name: nyahngunyah-db
+          property: user
       - key: DATABASE_PASS
-        value: password
+        fromDatabase:
+          name: nyahngunyah-db
+          property: password
       - key: DATABASE_NAME
-        value: nyahngunyah
+        fromDatabase:
+          name: nyahngunyah-db
+          property: database
       - key: DATABASE_SYNC
         value: "1"
 
-  # MySQL Database (Demo purposes - use managed DB for production)
-  - type: service
-    name: mysql-db
-    runtime: docker
+databases:
+  - name: nyahngunyah-db
     plan: free
-    envVars:
-      - key: MYSQL_ROOT_PASSWORD
-        value: password
-      - key: MYSQL_DATABASE
-        value: nyahngunyah
-    disk:
-      name: mysql-data
-      mountPath: /var/lib/mysql
-      sizeGB: 1

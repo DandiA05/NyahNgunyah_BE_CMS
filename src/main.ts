@@ -7,8 +7,6 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, new ExpressAdapter());
   app.useGlobalFilters(new HttpExceptionFilter());
 
-
-
   // Enable CORS
   app.enableCors({
     allowedHeaders: '*',
@@ -16,6 +14,6 @@ async function bootstrap() {
     credentials: true,
   });
 
-  await app.listen(3000);
+  await app.listen(process.env.PORT || 3000);
 }
 bootstrap();
