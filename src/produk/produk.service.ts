@@ -18,12 +18,19 @@ export class ProdukService {
     return this.produkRepository
       .find({ relations: ['fotos'] })
       .then((produkList) => {
-        // Base URL for your images (make sure this is correct)
         const baseUrl = `${process.env.BASE_URL}/uploads/`;
 
+        // 🔥 SORT: stock > 0 di atas, stock = 0 di bawah
+        produkList.sort((a, b) => {
+          const stockA = a.stock ?? 0;
+          const stockB = b.stock ?? 0;
+
+          if (stockA === 0 && stockB > 0) return 1;
+          if (stockA > 0 && stockB === 0) return -1;
+          return 0;
+        });
+
         return produkList.map((produk) => {
-          // Add the base URL to the image filename
-          produk.foto = produk.foto && baseUrl + produk.foto;
           produk.fotos = produk.fotos.map((foto) => {
             foto.foto = baseUrl + foto.foto;
             return foto;

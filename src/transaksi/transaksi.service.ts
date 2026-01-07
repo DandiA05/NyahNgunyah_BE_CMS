@@ -35,90 +35,87 @@ export class TransaksiService {
 
     return this.transaksiRepository.manager.transaction(async (manager) => {
       try {
-        // 🟩 STEP 1: Insert ke tabel transaksi
-        const insertTransaksiQuery = `
+        // 🟩 STEP 1: Insert transaksi
+        await manager.query(
+          `
         INSERT INTO transaksi (
-          nomor_transaksi, 
-          tanggal, 
-          total_harga, 
-          nama_pembeli, 
-          alamat,
-          telp,
-          email,
-          bukti_transfer,
-          status
+          nomor_transaksi, tanggal, total_harga,
+          nama_pembeli, alamat, telp, email, bukti_transfer, status
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `;
+        `,
+          [
+            nomorTransaksi,
+            currentDate,
+            0,
+            dto.nama_pembeli,
+            dto.alamat,
+            dto.telp,
+            dto.email,
+            dto.bukti_transfer ?? null,
+            'pending',
+          ],
+        );
 
-        await manager.query(insertTransaksiQuery, [
-          nomorTransaksi,
-          currentDate,
-          0, // total sementara
-          dto.nama_pembeli,
-          dto.alamat,
-          dto.telp,
-          dto.email,
-          dto.bukti_transfer ?? null, // ✅ tambahkan langsung di sini
-          'pending',
-        ]);
-
-        // 🟩 STEP 2: Ambil ID transaksi baru
-        const resultTransaksi = await manager.query(
+        const [{ id: transaksiId }] = await manager.query(
           `SELECT LAST_INSERT_ID() AS id`,
         );
-        const transaksiId = resultTransaksi[0].id;
 
         let totalHarga = 0;
 
-        // 🟩 STEP 3: Insert ke detail_transaksi
-        const insertDetailQueries = [];
+        // 🟩 STEP 3: Insert detail + kurangi stock
         for (const detail of dto.purchase_details) {
           const produk = await manager.findOne(Produk, {
             where: { id: detail.produk_id },
+            lock: { mode: 'pessimistic_write' }, // 🔒 penting!
           });
 
           if (!produk) {
-            throw new Error(
-              `Produk dengan ID ${detail.produk_id} tidak ditemukan`,
-            );
+            throw new Error(`Produk ID ${detail.produk_id} tidak ditemukan`);
           }
 
-          const subtotal = parseFloat(
-            (detail.quantity * produk.harga).toFixed(2),
-          );
+          if (produk.stock < detail.quantity) {
+            throw new Error(`Stock produk "${produk.nama}" tidak mencukupi`);
+          }
+
+          const subtotal = detail.quantity * produk.harga;
           totalHarga += subtotal;
 
-          const insertDetailQuery = `
-          INSERT INTO detail_transaksi (quantity, subtotal, transaksi_id, produk_id)
+          // Insert detail_transaksi
+          await manager.query(
+            `
+          INSERT INTO detail_transaksi
+          (quantity, subtotal, transaksi_id, produk_id)
           VALUES (?, ?, ?, ?)
-        `;
-          insertDetailQueries.push(
-            manager.query(insertDetailQuery, [
-              detail.quantity,
-              subtotal,
-              transaksiId,
-              detail.produk_id,
-            ]),
+          `,
+            [detail.quantity, subtotal, transaksiId, detail.produk_id],
+          );
+
+          // 🔥 Kurangi stock produk
+          await manager.query(
+            `
+          UPDATE produk
+          SET stock = stock - ?
+          WHERE id = ?
+          `,
+            [detail.quantity, detail.produk_id],
           );
         }
 
-        await Promise.all(insertDetailQueries);
-
-        // 🟩 STEP 4: Update total harga transaksi
-        const updateTransaksiQuery = `
+        // 🟩 STEP 4: Update total harga
+        await manager.query(
+          `
         UPDATE transaksi
         SET total_harga = ?
         WHERE id = ?
-      `;
-        await manager.query(updateTransaksiQuery, [totalHarga, transaksiId]);
+        `,
+          [totalHarga, transaksiId],
+        );
 
-        // 🟩 STEP 5: Return transaksi lengkap beserta relasi
-        const savedTransaksi = await manager.findOne(Transaksi, {
+        // 🟩 STEP 5: Return transaksi lengkap
+        return manager.findOne(Transaksi, {
           where: { id: transaksiId },
           relations: ['details', 'details.produk'],
         });
-
-        return savedTransaksi;
       } catch (error) {
         console.error('❌ Error dalam transaksi:', error);
         throw error;
@@ -163,8 +160,8 @@ export class TransaksiService {
         endDate: filter.endDate,
       });
     }
-    
-     query.orderBy('transaksi.tanggal', 'DESC');
+
+    query.orderBy('transaksi.tanggal', 'DESC');
 
     return query.getMany();
   }
@@ -220,14 +217,39 @@ export class TransaksiService {
       throw new Error(`Status "${status}" tidak valid`);
     }
 
-    const transaksi = await this.transaksiRepository.findOne({ where: { id } });
-    if (!transaksi) {
-      throw new Error(`Transaksi dengan ID ${id} tidak ditemukan`);
-    }
+    return this.transaksiRepository.manager.transaction(async (manager) => {
+      // 🔹 Ambil transaksi + detail + produk
+      const transaksi = await manager.findOne(Transaksi, {
+        where: { id },
+        relations: ['details', 'details.produk'],
+        lock: { mode: 'pessimistic_write' },
+      });
 
-    transaksi.status = status as StatusTransaksi;
-    await this.transaksiRepository.save(transaksi);
+      if (!transaksi) {
+        throw new Error(`Transaksi dengan ID ${id} tidak ditemukan`);
+      }
 
-    return transaksi;
+      const prevStatus = transaksi.status;
+
+      // 🔥 BALIKIN STOCK
+      if (status === 'cancelled' && prevStatus !== 'cancelled') {
+        for (const detail of transaksi.details) {
+          await manager.query(
+            `
+          UPDATE produk
+          SET stock = stock + ?
+          WHERE id = ?
+          `,
+            [detail.quantity, detail.produk.id],
+          );
+        }
+      }
+
+      // 🔹 Update status transaksi
+      transaksi.status = status as StatusTransaksi;
+      await manager.save(transaksi);
+
+      return transaksi;
+    });
   }
 }

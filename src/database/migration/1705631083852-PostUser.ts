@@ -7,12 +7,12 @@ export class PostUser1705631083852 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     const userRepo = queryRunner.connection.getRepository(User);
     await userRepo.insert({
-      firstName: 'Admin',
-      lastName: '1',
-      email: 'admin1@yopmail.com',
+      firstName: 'Jona',
+      lastName: 'Adhitya',
+      email: 'jona.adhitya@smf-indonesia.co.id',
       dateOfBirth: new Date('1990-05-15'), // Ganti dengan tanggal lahir yang sesuai
-      gender: Gender.FEMALE, // Gunakan enum Gender di sini
-      password: '$2b$10$77NZjurH/pFUNe4A//kzyu40OmirJiRp3tTNbREBUV8FTagEcSOh6', // Kata sandi yang sudah di-hash
+      gender: Gender.MALE, // Gunakan enum Gender di sini
+      password: '$2a$10$ON8vuVBWvMO8Wi0QU85X2OQI0w.4pv38vtEjbTK/zP.79lgEiZUXK', // Kata sandi yang sudah di-hash
       createdAt: new Date(),
       updatedAt: new Date(),
       deleted_at: null,
