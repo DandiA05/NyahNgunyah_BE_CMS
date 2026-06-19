@@ -4,7 +4,7 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { UserModule } from '../user/user/user.module';
-import { ActivityLogModule } from 'src/activity-log/activity-log.module'; // Import the UserModule
+import { ActivityLogModule } from '../activity-log/activity-log.module'; // Import the UserModule
 
 @Module({
   imports: [

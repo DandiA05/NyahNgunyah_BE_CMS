@@ -9,7 +9,7 @@ import { Repository } from 'typeorm';
 import { Pegawai } from './entities/pegawai.entity';
 import { CreatePegawaiDto } from './dto/create-pegawai.dto';
 import { UpdatePegawaiDto } from './dto/update-pegawai.dto';
-import { GetTableDto } from 'src/helper/dto/general.dto';
+import { GetTableDto } from '../../helper/dto/general.dto';
 
 @Injectable()
 export class PegawaiService {

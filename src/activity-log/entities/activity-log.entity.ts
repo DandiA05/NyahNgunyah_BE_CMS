@@ -9,7 +9,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { User } from 'src/user/user/entities/user.entity';
+import { User } from '../../user/user/entities/user.entity';
 
 @Entity('activity_log')
 export class ActivityLog {

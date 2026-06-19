@@ -12,9 +12,9 @@ import {
   Delete,
 } from '@nestjs/common';
 import { PegawaiService } from './pegawai.service';
-import { GetTableDto } from 'src/helper/dto/general.dto';
+import { GetTableDto } from '../../helper/dto/general.dto';
 import { Response } from 'express';
-import { AuthGuard } from 'src/auth/guards/auth.guard';
+import { AuthGuard } from '../../auth/guards/auth.guard';
 import { Pegawai } from './entities/pegawai.entity';
 
 @Controller('pegawai')

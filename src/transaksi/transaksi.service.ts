@@ -5,8 +5,8 @@ import { StatusTransaksi, Transaksi } from './entities/transaksi.entity';
 import { CreateTransaksiDto } from './dto/create-transaksi.dto';
 import { CreateTransaksiWithDetailsDto } from '../detail-transaksi/dto/create-transaksi-with-details.dto';
 import { DetailTransaksi } from '../detail-transaksi/entities/detail-transaksi.entity';
-import { ProdukService } from 'src/produk/produk.service';
-import { Produk } from 'src/produk/entities/produk.entity';
+import { ProdukService } from '../produk/produk.service';
+import { Produk } from '../produk/entities/produk.entity';
 @Injectable()
 export class TransaksiService {
   constructor(

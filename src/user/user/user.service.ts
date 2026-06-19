@@ -10,7 +10,7 @@ import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
-import { GetTableDto } from 'src/helper/dto/general.dto';
+import { GetTableDto } from '../../helper/dto/general.dto';
 import { ChangePasswordUserDto } from './dto/change-password.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 

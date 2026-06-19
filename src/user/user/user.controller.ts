@@ -14,10 +14,10 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './entities/user.entity';
-import { GetTableDto } from 'src/helper/dto/general.dto';
+import { GetTableDto } from '../../helper/dto/general.dto';
 import { Response } from 'express';
 import { ChangePasswordUserDto } from './dto/change-password.dto';
-import { AuthGuard } from 'src/auth/guards/auth.guard';
+import { AuthGuard } from '../../auth/guards/auth.guard';
 
 @Controller('user')
 export class UserController {

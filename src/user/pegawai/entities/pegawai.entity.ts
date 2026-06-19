@@ -8,7 +8,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-import { Cuti } from 'src/cuti/entities/cuti.entity';
+import { Cuti } from '../../../cuti/entities/cuti.entity';
 
 // Enum untuk jenis kelamin
 export enum Gender {

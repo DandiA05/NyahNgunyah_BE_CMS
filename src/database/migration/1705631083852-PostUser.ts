@@ -1,5 +1,5 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
-import { User, Gender } from 'src/user/user/entities/user.entity'; // Pastikan enum Gender diimpor
+import { User, Gender } from '../../user/user/entities/user.entity'; // Pastikan enum Gender diimpor
 
 export class PostUser1705631083852 implements MigrationInterface {
   name = 'PostUser1705631083852';
