@@ -10,7 +10,7 @@ async function bootstrap() {
   // Enable CORS
   app.enableCors({
     allowedHeaders: '*',
-    origin: '*',
+    origin: true,
     credentials: true,
   });
 
