@@ -29,6 +29,9 @@ export class Produk {
   @Column()
   foto: string;
 
+  @Column({ name: 'foto_public_id', nullable: true })
+  foto_public_id: string;
+
   @OneToMany(() => ProdukFotos, (item) => item.produk)
   fotos: ProdukFotos[];
 

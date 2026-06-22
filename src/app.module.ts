@@ -13,6 +13,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { TransaksiModule } from './transaksi/transaksi.module';
 import { DetailTransaksiModule } from './detail-transaksi/detail-transaksi.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -25,6 +26,7 @@ import { DetailTransaksiModule } from './detail-transaksi/detail-transaksi.modul
     ActivityLogModule,
     CutiModule,
     ProdukModule,
+    CloudinaryModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'uploads'), // Folder untuk akses file
       serveRoot: '/uploads', // Prefix URL

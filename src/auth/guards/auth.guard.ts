@@ -6,6 +6,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
+import * as jwt from 'jsonwebtoken';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -19,11 +20,12 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException('Token not provided');
     }
 
-    // Add your token verification logic here (e.g., call verifyToken from AuthService)
-    // Make sure AuthService.verifyToken returns a decoded token if valid
-    // If AuthService.verifyToken throws an error, it will be caught by NestJS and result in an UnauthorizedException
-    // If the token is valid, return true; otherwise, return false
-
-    return token;
+    try {
+      const decoded = jwt.verify(token, 'yourSecretKey');
+      request.user = decoded;
+      return true;
+    } catch (error) {
+      throw new UnauthorizedException('Invalid or expired token');
+    }
   }
 }

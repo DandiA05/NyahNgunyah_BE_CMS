@@ -15,6 +15,9 @@ export class ProdukFotos {
   @Column()
   foto: string;
 
+  @Column({ name: 'public_id', nullable: true })
+  public_id: string;
+
   @ManyToOne(() => Produk, (item) => item.fotos)
   @JoinColumn({ name: 'id_produk' })
   produk: Produk;

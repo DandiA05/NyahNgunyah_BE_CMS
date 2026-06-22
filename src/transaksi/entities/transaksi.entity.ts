@@ -44,6 +44,9 @@ export class Transaksi {
   @Column({ nullable: true })
   bukti_transfer: string;
 
+  @Column({ name: 'bukti_transfer_public_id', nullable: true })
+  bukti_transfer_public_id: string;
+
   @Column('decimal', { precision: 10, scale: 2, default: 0 })
   total_harga: number;
 

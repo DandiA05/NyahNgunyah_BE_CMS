@@ -40,8 +40,8 @@ export class TransaksiService {
           `
         INSERT INTO transaksi (
           nomor_transaksi, tanggal, total_harga,
-          nama_pembeli, alamat, telp, email, bukti_transfer, status
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+          nama_pembeli, alamat, telp, email, bukti_transfer, bukti_transfer_public_id, status
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `,
           [
             nomorTransaksi,
@@ -52,6 +52,7 @@ export class TransaksiService {
             dto.telp,
             dto.email,
             dto.bukti_transfer ?? null,
+            dto.bukti_transfer_public_id ?? null,
             'pending',
           ],
         );
@@ -176,16 +177,18 @@ export class TransaksiService {
       throw new NotFoundException(`Transaksi dengan ID ${id} tidak ditemukan`);
     }
 
-    const baseUrl = `${process.env.BASE_URL}/uploads/bukti-transfer/`;
+    const baseUrlBukti = `${process.env.BASE_URL}/uploads/bukti-transfer/`;
+    const baseUrlProduk = `${process.env.BASE_URL}/uploads/`;
 
-    if (transaksi.bukti_transfer) {
-      transaksi.bukti_transfer = baseUrl + transaksi.bukti_transfer;
+    if (transaksi.bukti_transfer && !transaksi.bukti_transfer.startsWith('http')) {
+      transaksi.bukti_transfer = baseUrlBukti + transaksi.bukti_transfer;
     }
 
     transaksi.details.forEach((detail) => {
-      console.log('detail', detail);
       if (detail.produk && detail.produk.foto) {
-        detail.produk.foto = baseUrl + detail.produk.foto[0];
+        if (!detail.produk.foto.startsWith('http')) {
+          detail.produk.foto = baseUrlProduk + detail.produk.foto;
+        }
       }
     });
 
