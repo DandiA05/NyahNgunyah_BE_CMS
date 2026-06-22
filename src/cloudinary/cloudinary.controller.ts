@@ -3,7 +3,6 @@ import { CloudinaryService } from './cloudinary.service';
 import { AuthGuard } from '../auth/guards/auth.guard';
 
 @Controller('cloudinary')
-@UseGuards(AuthGuard)
 export class CloudinaryController {
   constructor(private readonly cloudinaryService: CloudinaryService) {}
 
@@ -13,6 +12,7 @@ export class CloudinaryController {
   }
 
   @Delete('assets')
+  @UseGuards(AuthGuard)
   async deleteAsset(@Body('publicId') publicId: string) {
     if (!publicId) {
       throw new Error('publicId is required');
@@ -21,6 +21,7 @@ export class CloudinaryController {
   }
 
   @Get('assets')
+  @UseGuards(AuthGuard)
   async getAssets() {
     return this.cloudinaryService.fetchAssets();
   }
