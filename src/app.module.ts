@@ -15,7 +15,10 @@ import { TransaksiModule } from './transaksi/transaksi.module';
 import { DetailTransaksiModule } from './detail-transaksi/detail-transaksi.module';
 @Module({
   imports: [
-    TypeOrmModule.forRoot(databaseConfig),
+    TypeOrmModule.forRoot({
+      ...databaseConfig,
+      autoLoadEntities: true,
+    }),
     UserModule,
     PegawaiModule,
     AuthModule,

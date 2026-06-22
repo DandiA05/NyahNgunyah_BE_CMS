@@ -3,14 +3,10 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 const dataSource = new DataSource({
-  type: 'mysql',
-  host: process.env.DATABASE_HOST,
-  port: +process.env.DATABASE_PORT,
-  username: process.env.DATABASE_USER,
-  password: process.env.DATABASE_PASS,
-  database: process.env.DATABASE_NAME,
-  extra: {
-    charset: 'utf8mb4_unicode_ci',
+  type: 'postgres',
+  url: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false,
   },
   migrationsRun: +process.env.DATABASE_SYNC !== 1,
   migrationsTableName: 'migrations',
