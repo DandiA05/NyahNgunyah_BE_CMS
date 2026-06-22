@@ -4,7 +4,7 @@ import { AuthGuard } from '../auth/guards/auth.guard';
 
 @Controller('cloudinary')
 export class CloudinaryController {
-  constructor(private readonly cloudinaryService: CloudinaryService) {}
+  constructor(private readonly cloudinaryService: CloudinaryService) { }
 
   @Get('signature')
   getSignature(@Query() query: any) {
@@ -12,7 +12,6 @@ export class CloudinaryController {
   }
 
   @Delete('assets')
-  @UseGuards(AuthGuard)
   async deleteAsset(@Body('publicId') publicId: string) {
     if (!publicId) {
       throw new Error('publicId is required');
@@ -21,7 +20,6 @@ export class CloudinaryController {
   }
 
   @Get('assets')
-  @UseGuards(AuthGuard)
   async getAssets() {
     return this.cloudinaryService.fetchAssets();
   }
