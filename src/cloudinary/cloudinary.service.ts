@@ -11,7 +11,19 @@ export class CloudinaryService {
     });
   }
 
-  generateSignature() {
+  generateSignature(paramsToSign?: any) {
+    if (paramsToSign && Object.keys(paramsToSign).length > 0) {
+      const params = { ...paramsToSign };
+      if (params.timestamp) {
+        params.timestamp = Number(params.timestamp);
+      }
+      const signature = cloudinary.utils.api_sign_request(
+        params,
+        process.env.CLOUDINARY_API_SECRET!,
+      );
+      return { signature };
+    }
+
     const timestamp = Math.round(new Date().getTime() / 1000);
     const upload_preset = process.env.CLOUDINARY_UPLOAD_PRESET || 'your_signed_preset';
 

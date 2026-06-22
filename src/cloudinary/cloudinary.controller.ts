@@ -8,8 +8,8 @@ export class CloudinaryController {
   constructor(private readonly cloudinaryService: CloudinaryService) {}
 
   @Get('signature')
-  getSignature() {
-    return this.cloudinaryService.generateSignature();
+  getSignature(@Query() query: any) {
+    return this.cloudinaryService.generateSignature(query);
   }
 
   @Delete('assets')
