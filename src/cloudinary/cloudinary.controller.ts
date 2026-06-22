@@ -2,7 +2,7 @@ import { Controller, Get, Delete, Body, UseGuards, Query } from '@nestjs/common'
 import { CloudinaryService } from './cloudinary.service';
 import { AuthGuard } from '../auth/guards/auth.guard';
 
-@Controller('api/cloudinary')
+@Controller('cloudinary')
 @UseGuards(AuthGuard)
 export class CloudinaryController {
   constructor(private readonly cloudinaryService: CloudinaryService) {}
