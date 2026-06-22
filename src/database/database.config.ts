@@ -38,7 +38,7 @@ const config: PostgresConnectionOptions = {
   entities: ['dist/**/*.entity{.ts,.js}'],
 
   migrations: ['dist/database/migrations/*{.ts,.js}'],
-  migrationsRun: +process.env.DATABASE_SYNC !== 1,
+  migrationsRun: false,
 
   migrationsTableName: 'migrations',
   synchronize: +process.env.DATABASE_SYNC === 1,

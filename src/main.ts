@@ -2,9 +2,12 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import { HttpExceptionFilter } from './helper/response/http-exception.filter';
-import { seedInitialUser } from './seeders/create-initial-user.seed';
+import express from 'express';
+
+const expressApp = express();
+
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, new ExpressAdapter());
+  const app = await NestFactory.create(AppModule, new ExpressAdapter(expressApp));
   app.useGlobalFilters(new HttpExceptionFilter());
 
   // Enable CORS
@@ -19,6 +22,12 @@ async function bootstrap() {
     credentials: true,
   });
 
-  await app.listen(process.env.PORT || 3000);
+  if (process.env.VERCEL) {
+    await app.init();
+  } else {
+    await app.listen(process.env.PORT || 3000);
+  }
 }
 bootstrap();
+
+export default expressApp;
