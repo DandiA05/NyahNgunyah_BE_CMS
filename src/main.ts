@@ -5,8 +5,11 @@ import { HttpExceptionFilter } from './helper/response/http-exception.filter';
 import express from 'express';
 
 const expressApp = express();
+let nestApp: any;
 
 async function bootstrap() {
+  if (nestApp) return nestApp;
+
   const app = await NestFactory.create(AppModule, new ExpressAdapter(expressApp));
   app.useGlobalFilters(new HttpExceptionFilter());
 
@@ -22,12 +25,18 @@ async function bootstrap() {
     credentials: true,
   });
 
-  if (process.env.VERCEL) {
-    await app.init();
-  } else {
-    await app.listen(process.env.PORT || 3000);
-  }
+  await app.init();
+  nestApp = app;
+  return nestApp;
 }
-bootstrap();
 
-export default expressApp;
+if (!process.env.VERCEL) {
+  bootstrap().then(async (app) => {
+    await app.listen(process.env.PORT || 3000);
+  });
+}
+
+export default async (req: any, res: any) => {
+  await bootstrap();
+  expressApp(req, res);
+};
