@@ -70,15 +70,27 @@ export class ProdukService {
 
   async create(data: Partial<Produk> & { fotos?: { foto: string; public_id?: string }[] }) {
     return this.connection.transaction(async (manager) => {
+      const { fotos = [], ...produkData } = data;
+
+      // Pastikan foto utama juga masuk ke daftar fotos tambahan
+      if (produkData.foto) {
+        const hasMainFoto = fotos.some((f) => f.foto === produkData.foto);
+        if (!hasMainFoto) {
+          fotos.unshift({
+            foto: produkData.foto,
+            public_id: produkData.foto_public_id || '',
+          });
+        }
+      }
+
       // 1. Simpan produk
-      const { fotos, ...produkData } = data;
       const produk = await manager
         .getRepository(Produk)
         .save(manager.getRepository(Produk).create(produkData));
 
       // 2. Buat data foto jika ada
       let produkFotos: ProdukFotos[] = [];
-      if (fotos && fotos.length > 0) {
+      if (fotos.length > 0) {
         produkFotos = fotos.map((f) => {
           const foto = new ProdukFotos();
           foto.foto = f.foto;
@@ -123,6 +135,20 @@ export class ProdukService {
       await produkRepo.save(produk);
 
       if (fotos) {
+        // Pastikan foto utama juga masuk ke daftar fotos jika belum ada
+        const currentCoverFoto = produkData.foto || produk.foto;
+        const currentCoverPublicId = produkData.foto_public_id || produk.foto_public_id;
+        if (currentCoverFoto) {
+          const hasMainFotoInIncoming = fotos.some((f) => f.foto === currentCoverFoto);
+          const hasMainFotoInDb = produk.fotos.some((f) => f.foto === currentCoverFoto);
+          if (!hasMainFotoInIncoming && !hasMainFotoInDb) {
+            fotos.unshift({
+              foto: currentCoverFoto,
+              public_id: currentCoverPublicId || '',
+            });
+          }
+        }
+
         // Hapus foto lama yang tidak ada di list fotos baru (berdasarkan ID)
         const incomingFotoIds = fotos.map((f) => f.id).filter(Boolean) as number[];
         const fotosToDelete = produk.fotos.filter((f) => !incomingFotoIds.includes(f.id));
@@ -175,6 +201,6 @@ export class ProdukService {
   }
 
   delete(id: number) {
-    return this.produkRepository.delete(id);
+    return this.produkRepository.softDelete(id);
   }
 }
