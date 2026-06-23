@@ -219,16 +219,21 @@ export class TransaksiService {
     }
 
     return this.transaksiRepository.manager.transaction(async (manager) => {
-      // 🔹 Ambil transaksi + detail + produk
+      // 🔹 Ambil transaksi dengan lock (tanpa relation agar tidak terjadi error Postgres)
       const transaksi = await manager.findOne(Transaksi, {
         where: { id },
-        relations: ['details', 'details.produk'],
         lock: { mode: 'pessimistic_write' },
       });
 
       if (!transaksi) {
         throw new Error(`Transaksi dengan ID ${id} tidak ditemukan`);
       }
+
+      // 🔹 Muat detail & produk secara terpisah
+      transaksi.details = await manager.find(DetailTransaksi, {
+        where: { transaksi: { id: transaksi.id } },
+        relations: ['produk'],
+      });
 
       const prevStatus = transaksi.status;
 
