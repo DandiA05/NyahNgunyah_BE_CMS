@@ -36,12 +36,13 @@ export class TransaksiService {
     return this.transaksiRepository.manager.transaction(async (manager) => {
       try {
         // 🟩 STEP 1: Insert transaksi
-        await manager.query(
+        const [insertResult] = await manager.query(
           `
         INSERT INTO transaksi (
           nomor_transaksi, tanggal, total_harga,
           nama_pembeli, alamat, telp, email, bukti_transfer, bukti_transfer_public_id, status
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        RETURNING id
         `,
           [
             nomorTransaksi,
@@ -57,10 +58,7 @@ export class TransaksiService {
           ],
         );
 
-        const [{ id: transaksiId }] = await manager.query(
-          `SELECT LAST_INSERT_ID() AS id`,
-        );
-
+        const transaksiId = insertResult.id;
         let totalHarga = 0;
 
         // 🟩 STEP 3: Insert detail + kurangi stock
@@ -86,7 +84,7 @@ export class TransaksiService {
             `
           INSERT INTO detail_transaksi
           (quantity, subtotal, transaksi_id, produk_id)
-          VALUES (?, ?, ?, ?)
+          VALUES ($1, $2, $3, $4)
           `,
             [detail.quantity, subtotal, transaksiId, detail.produk_id],
           );
@@ -95,8 +93,8 @@ export class TransaksiService {
           await manager.query(
             `
           UPDATE produk
-          SET stock = stock - ?
-          WHERE id = ?
+          SET stock = stock - $1
+          WHERE id = $2
           `,
             [detail.quantity, detail.produk_id],
           );
@@ -106,8 +104,8 @@ export class TransaksiService {
         await manager.query(
           `
         UPDATE transaksi
-        SET total_harga = ?
-        WHERE id = ?
+        SET total_harga = $1
+        WHERE id = $2
         `,
           [totalHarga, transaksiId],
         );
@@ -240,8 +238,8 @@ export class TransaksiService {
           await manager.query(
             `
           UPDATE produk
-          SET stock = stock + ?
-          WHERE id = ?
+          SET stock = stock + $1
+          WHERE id = $2
           `,
             [detail.quantity, detail.produk.id],
           );
