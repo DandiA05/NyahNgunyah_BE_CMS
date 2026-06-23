@@ -50,17 +50,17 @@ export class UserController {
   }
 
   @Put(':id')
-  async update(@Param('id') id: number, @Body() pegawai: User): Promise<User> {
-    return this.userService.update(id, pegawai);
+  async update(@Param('id') id: number, @Body() user: User): Promise<User> {
+    return this.userService.update(id, user);
   }
 
   @Delete(':id')
   async delete(@Param('id') id: number): Promise<string> {
     const result = await this.userService.delete(id);
     if (result) {
-      return `Pegawai with ID ${id} deleted successfully`;
+      return `User with ID ${id} deleted successfully`;
     } else {
-      return `Pegawai with ID ${id} not found`;
+      return `User with ID ${id} not found`;
     }
   }
   @UseGuards(AuthGuard)

@@ -59,20 +59,20 @@ export class UserService {
   async findByEmail(email: string): Promise<User | undefined> {
     return this.mainRepository.findOne({ where: { email } });
   }
-  async update(id: number, updatePegawaiDto: UpdateUserDto): Promise<User> {
-    // Cari Pegawai berdasarkan id
-    const pegawai = await this.mainRepository.findOne({ where: { id } });
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+    // Cari User berdasarkan id
+    const user = await this.mainRepository.findOne({ where: { id } });
 
-    // Jika Pegawai tidak ditemukan, lempar error
-    if (!pegawai) {
-      throw new NotFoundException(`Pegawai dengan id ${id} tidak ditemukan`);
+    // Jika User tidak ditemukan, lempar error
+    if (!user) {
+      throw new NotFoundException(`User dengan id ${id} tidak ditemukan`);
     }
 
-    // Update entitas Pegawai dengan data yang diterima dari DTO
-    Object.assign(pegawai, updatePegawaiDto);
+    // Update entitas User dengan data yang diterima dari DTO
+    Object.assign(user, updateUserDto);
 
     // Simpan perubahan ke database
-    return this.mainRepository.save(pegawai);
+    return this.mainRepository.save(user);
   }
   // Add other database operations as needed
 
@@ -108,13 +108,13 @@ export class UserService {
   }
 
   async delete(id: number): Promise<boolean> {
-    const pegawai = await this.mainRepository.findOne({ where: { id } });
+    const user = await this.mainRepository.findOne({ where: { id } });
 
-    if (!pegawai) {
-      return false; // Jika pegawai tidak ditemukan, kembalikan false
+    if (!user) {
+      return false; // Jika user tidak ditemukan, kembalikan false
     }
 
-    await this.mainRepository.remove(pegawai); // Menghapus pegawai dari database
+    await this.mainRepository.remove(user); // Menghapus user dari database
     return true; // Mengembalikan true jika berhasil menghapus
   }
 }

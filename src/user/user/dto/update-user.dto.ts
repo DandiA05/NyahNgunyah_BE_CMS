@@ -5,7 +5,7 @@ import {
   IsOptional,
   IsPhoneNumber,
 } from 'class-validator';
-import { Gender } from './../../pegawai/entities/pegawai.entity'; // Import enum Gender
+import { Gender } from '../entities/user.entity'; // Import enum Gender
 
 export class UpdateUserDto {
   @IsOptional()
