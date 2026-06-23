@@ -63,7 +63,7 @@ export class TransaksiController {
   }
 
   @Patch(':id/status')
-  async updateStatus(@Param('id') id: number, @Body('status') status: string) {
-    return this.transaksiService.updateStatus(id, status);
+  async updateStatus(@Param('id') id: string, @Body('status') status: string) {
+    return this.transaksiService.updateStatus(Number(id), status);
   }
 }
